@@ -326,37 +326,37 @@ int main(int argc, char *argv[])
     // Seed the random number generator.
     srand(rand);
 
-    sprintf(filename, "%s/%s%s", datadirectory, "Store_Dimension", ".tbl");
+    sprintf(filename, "%s/%s%s", datadirectory, "Store_Dimension", ".csv");
     store_gen(filename, numstorekeys);
 
-    sprintf(filename, "%s/%s%s", datadirectory, "Date_Dimension", ".tbl");
+    sprintf(filename, "%s/%s%s", datadirectory, "Date_Dimension", ".csv");
     uint64 numtimekeys = time_gen(timefile, filename);
 
-    sprintf(filename, "%s/%s%s", datadirectory, "Product_Dimension", ".tbl");
+    sprintf(filename, "%s/%s%s", datadirectory, "Product_Dimension", ".csv");
     prod_gen(filename, numprodkeys);
 
-    sprintf(filename, "%s/%s%s", datadirectory, "Promotion_Dimension", ".tbl");
+    sprintf(filename, "%s/%s%s", datadirectory, "Promotion_Dimension", ".csv");
     promo_gen(filename, numpromokeys);
 
-    sprintf(filename, "%s/%s%s", datadirectory, "Vendor_Dimension", ".tbl");
+    sprintf(filename, "%s/%s%s", datadirectory, "Vendor_Dimension", ".csv");
     vend_gen(filename, numvendkeys);
 
-    sprintf(filename, "%s/%s%s", datadirectory, "Customer_Dimension", ".tbl");
+    sprintf(filename, "%s/%s%s", datadirectory, "Customer_Dimension", ".csv");
     cust_gen(filename, numcustkeys);
 
-    sprintf(filename, "%s/%s%s", datadirectory, "Employee_Dimension", ".tbl");
+    sprintf(filename, "%s/%s%s", datadirectory, "Employee_Dimension", ".csv");
     emp_gen(filename, numempkeys);
 
-    sprintf(filename, "%s/%s%s", datadirectory, "Warehouse_Dimension", ".tbl");
+    sprintf(filename, "%s/%s%s", datadirectory, "Warehouse_Dimension", ".csv");
     warehouse_gen(filename, numwarehousekeys);
 
-    sprintf(filename, "%s/%s%s", datadirectory, "Shipping_Dimension", ".tbl");
+    sprintf(filename, "%s/%s%s", datadirectory, "Shipping_Dimension", ".csv");
     shipping_gen(filename, numshippingkeys);
 
-    sprintf(filename, "%s/%s%s", datadirectory, "Online_Page_Dimension", ".tbl");
+    sprintf(filename, "%s/%s%s", datadirectory, "Online_Page_Dimension", ".csv");
     onlinepage_gen(filename, numonlinepagekeys);
 
-    sprintf(filename, "%s/%s%s", datadirectory, "Call_Center_Dimension", ".tbl");
+    sprintf(filename, "%s/%s%s", datadirectory, "Call_Center_Dimension", ".csv");
     callcenter_gen(filename, numcallcenterkeys);
 
     // STORE_SALES_FACT
@@ -395,10 +395,10 @@ int main(int argc, char *argv[])
                     char filename[2048];
                     if (numfiles == 1)
                     {
-                        sprintf(filename, "%s/%s", datadirectory, "Store_Sales_Fact.tbl");
+                        sprintf(filename, "%s/%s", datadirectory, "Store_Sales_Fact.csv");
                     } else
                     {
-                        sprintf(filename, "%s/%s_%03lld.tbl", datadirectory, "Store_Sales_Fact", fnum);
+                        sprintf(filename, "%s/%s_%03lld.csv", datadirectory, "Store_Sales_Fact", fnum);
                     }
                     fd = fopen(filename, "w");
                     if (fd == NULL)
@@ -495,10 +495,10 @@ int main(int argc, char *argv[])
             char filename[2048];
             if (numfiles == 1)
             {
-                sprintf(filename, "%s/%s", datadirectory, "Store_Orders_Fact.tbl");
+                sprintf(filename, "%s/%s", datadirectory, "Store_Orders_Fact.csv");
             } else
             {
-                sprintf(filename, "%s/%s_%03lld.tbl", datadirectory, "Store_Orders_Fact", fnum);
+                sprintf(filename, "%s/%s_%03lld.csv", datadirectory, "Store_Orders_Fact", fnum);
             }
             fd = fopen(filename, "w");
             if (fd == NULL)
@@ -570,10 +570,10 @@ int main(int argc, char *argv[])
                     char filename[2048];
                     if (numfiles == 1)
                     {
-                        sprintf(filename, "%s/%s", datadirectory, "Inventory_Fact.tbl");
+                        sprintf(filename, "%s/%s", datadirectory, "Inventory_Fact.csv");
                     } else
                     {
-                        sprintf(filename, "%s/%s_%03lld.tbl", datadirectory, "Inventory_Fact", fnum);
+                        sprintf(filename, "%s/%s_%03lld.csv", datadirectory, "Inventory_Fact", fnum);
                     }
                     fd = fopen(filename, "w");
                     if (fd == NULL)
@@ -626,10 +626,10 @@ int main(int argc, char *argv[])
                     char filename[1024];
                     if (numfiles == 1)
                     {
-                        sprintf(filename, "%s/%s", datadirectory, "Online_Sales_Fact.tbl");
+                        sprintf(filename, "%s/%s", datadirectory, "Online_Sales_Fact.csv");
                     } else
                     {
-                        sprintf(filename, "%s/%s_%03lld.tbl", datadirectory, "Online_Sales_Fact", fnum);
+                        sprintf(filename, "%s/%s_%03lld.csv", datadirectory, "Online_Sales_Fact", fnum);
                     }
                     fd = fopen(filename, "w");
                     if (fd == NULL)
@@ -1615,7 +1615,7 @@ void tableprint(FILE *fd, const char *inputfile, const char *table)
 {
     char buf[1024];
     sprintf(buf, "\\set input_file '\\'':t_pwd'/");
-    sprintf(&buf[strlen(buf)], "%s.tbl\\''\n", inputfile);
+    sprintf(&buf[strlen(buf)], "%s.csv\\''\n", inputfile);
     sprintf(&buf[strlen(buf)], "COPY %s FROM :input_file DELIMITER '|' ", table);
 
     // if nullflag contains a '\', we need to add extra dashes

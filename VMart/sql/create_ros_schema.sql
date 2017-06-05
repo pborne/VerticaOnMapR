@@ -262,7 +262,7 @@ create table ros.call_center_dimension
     cc_region               varchar(64) 
 );
 
-create table ros.fact
+create table ros.Online_Sales_Fact
 (    sale_date_key              integer         not null,
     ship_date_key              integer         not null,
     product_key                integer         not null,
