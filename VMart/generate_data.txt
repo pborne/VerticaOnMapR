@@ -1,0 +1,114 @@
+# Generate data with default values
+
+./vmart_gen --datadirectory /mapr/vertica7/drill/vmart_files
+
+# Create a new DB
+
+/opt/vertica/bin/admintools -t create_db -s ip-172-16-2-196.ec2.internal,ip-172-16-2-197.ec2.internal,ip-172-16-2-198.ec2.internal -d VMart -c /vertica/catalog -D /vertica/data --skip-fs-checks
+
+# Load the data
+
+
+
+--------------------------
+
+# Generate a lot more data
+
+./vmart_gen --datadirectory /mapr/vertica7/drill/vmart_files \
+--files 100 \
+--seed 20177 \
+--null '' \
+--time_file Time.txt \
+--store_sales_fact 500000000 \
+--store_orders_fact 30000000 \
+--product_dimension 6000000 \
+--store_dimension 25000 \
+--promotion_dimension 100000 \
+--vendor_dimension 500000 \
+--customer_dimension 5000000 \
+--employee_dimension 1000000 \
+--warehouse_dimension 100 \
+--shipping_dimension 100 \
+--online_page_dimension 1000 \
+--callcenter_dimension 2000 \
+--online_sales_fact 500000000 \
+--inventory_fact 30000000 \
+--gen_load_script true
+
+    [ --datadirectory <dir-data-files> ]
+    [ --files <fact-table-load-files> ]
+    [ --null  <character-to-indicate-null-value> ]
+    [ --seed  <for-random-number-generator> ]
+    [ --time_file  <data-for-Date_Dimension> ]
+    [ --store_sales_fact  <rows> ]
+    [ --store_orders_fact  <rows> ]
+    [ --product_dimension  <rows> ]
+    [ --store_dimension  <rows> ]
+    [ --promotion_dimension  <rows> ]
+    [ --vendor_dimension  <rows> ]
+    [ --customer_dimension  <rows> ]
+    [ --employee_dimension  <rows> ]
+    [ --warehouse_dimension <rows> ]
+    [ --shipping_dimension <rows> ]
+    [ --online_page_dimension <rows> ]
+    [ --callcenter_dimension <rows> ]
+    [ --online_sales_fact <rows> ]
+    [ --inventory_fact <rows> ]
+    [ --gen_load_script ]
+
+    
+# Refresh the schema
+as dbadmin:
+
+cd /opt/vertica/examples/VMart_Schema
+
+# Modify the load script, make sure the path is set to where the files are located:
+/mapr/vertica7/drill/vmart_files
+
+# The load script is:
+vim vmart_load_data_datadir.sql
+
+# On the first line, replace with:
+\set t_pwd /mapr/vertica7/drill/vmart_files
+
+# At the bottom of the file, replace the COPY commands for the fact tables to let vertica distribute the load
+# Replace with this:
+
+\set input_file '''':t_pwd'/Store_Sales_Fact_*.tbl'''
+COPY store.Store_Sales_Fact FROM :input_file ON ANY NODE DELIMITER '|' NULL '' DIRECT;
+
+\set input_file '''':t_pwd'/Store_Orders_Fact_*.tbl'''
+COPY store.Store_Orders_Fact FROM :input_file ON ANY NODE DELIMITER '|' NULL '' DIRECT;
+
+\set input_file '''':t_pwd'/Online_Sales_Fact_*.tbl'''
+COPY online_sales.Online_Sales_Fact FROM :input_file ON ANY NODE DELIMITER '|' NULL '' DIRECT;
+
+\set input_file '''':t_pwd'/Inventory_Fact_*.tbl'''
+COPY Inventory_Fact FROM :input_file ON ANY NODE DELIMITER '|' NULL '' DIRECT;
+
+#Log into vsql as dbadmin
+vsql
+
+# Drop the schema
+\i vmart_schema_drop.sql
+
+# Recreate the tables and schemas:
+\i vmart_define_schema.sql
+
+# Make sure there is no projection created so far:
+\dj
+
+# Make sure tables have been created:
+\d
+
+# Create "optimized" projections
+\i design01.pbo.sql
+
+# Start the load. In another terminal, run "top" to chedk that the vertica process uses lots of CPU time
+\i vmart_load_data_datadir.sql
+
+# Everything combined, ready to use in one copy/paste
+\i vmart_schema_drop.sql
+\i vmart_define_schema.sql
+\i design01.pbo.sql
+\i vmart_load_data_datadir.sql

@@ -1,0 +1,147 @@
+################################
+# Create volumes for Vertica 8 #
+################################
+su - mapr
+./create_volumes.sh
+
+###############################################
+# Install Vertica 8 on the single Vertica node #
+###############################################
+# As root
+
+yum update tzdata
+yum install -y dialog
+yum install -y pstack
+yum install -y mcelog
+yum install -y sysstat
+
+# Set a Time Zone
+vim /etc/profile.d/timezone.sh
+
+# Add
+export TZ="America/New_York"
+
+# Copy to all nodes
+clush -ac /etc/profile.d/timezone.sh
+
+# Make sure there is enough room in /opt for an upcoming /opt/vertica directory
+
+# Download the RPM from my.vertica.com
+
+# Upload the RPM to the VM
+scp vertica-8.1.0-3.x86_64.RHEL6.rpm mapr@192.168.56.101:~/
+
+# Install on the first Vertica node
+# Run as root:
+yum install /home/mapr/vertica-8.1.0-3.x86_64.RHEL6.rpm
+
+# Create a symbolic link to the volumes
+rm -f /vertica
+ln -s /mapr/demo.mapr.com/vertica/`hostname -s` /vertica
+
+# As the root user:
+/opt/vertica/sbin/install_vertica --hosts maprdemo --rpm /home/mapr/vertica-8.1.0-3.x86_64.RHEL6.rpm --data-dir /vertica/data
+
+# If necessary, fix the OS parameters that are incorrect as reported by the installer
+
+##############################################################################
+# Set I/O Scheduler to deadline or noop (SSD) as a pre-requisite for Vertica #
+##############################################################################
+cat /sys/block/sda/queue/scheduler
+echo noop > /sys/block/sda/queue/scheduler
+cat /sys/block/sda/queue/scheduler
+
+###############################################################
+# Configure readahead on all block devices in use by Vertica. #
+###############################################################
+/sbin/blockdev --setra 2048 /dev/sda
+echo '/sbin/blockdev --setra 2048 /dev/sda' >> /etc/rc.local
+
+/sbin/blockdev --setra 2048 /dev/mapper/vg_maprdemo-lv_root
+echo '/sbin/blockdev --setra 2048 /dev/mapper/vg_maprdemo-lv_root' >> /etc/rc.local
+
+#########################################################################
+# Disable Transparent Hugepages as a pre-requisite for Vertica and MapR #
+#########################################################################
+cat /sys/kernel/mm/redhat_transparent_hugepage/enabled
+echo never>/sys/kernel/mm/redhat_transparent_hugepage/enabled
+cat /sys/kernel/mm/redhat_transparent_hugepage/enabled
+
+echo "echo never > /sys/kernel/mm/redhat_transparent_hugepage/enabled" >> /etc/rc.local
+
+
+
+############################
+# ADD SWAP SPACE IF NEEDED #
+############################
+
+/bin/dd if=/dev/zero of=/root/swap.1 bs=1M count=1300
+chown root:root /root/swap.1
+chmod 600 /root/swap.1
+
+/sbin/mkswap /root/swap.1
+/sbin/swapon /root/swap.1
+
+/sbin/swapoff /var/swap.1
+
+# Edit
+vim /etc/fstab
+
+# Add
+/root/swap.1 swap swap defaults 0 0
+
+# reboot the nodes after shutting down properly (see below)
+
+# Check that the node takes the swap space into account
+cat /proc/meminfo | grep -i swap
+
+
+
+
+###########################
+# CLEAN START
+############################
+
+service mapr-zookeeper start
+service mapr-warden start
+#service mapr-posix-client-basic start
+
+############################
+# CLEAN STOP
+############################
+
+#service mapr-posix-client-basic stop
+service mapr-warden stop
+service mapr-zookeeper stop
+
+# Update Permissions for Vertica Mountpoint (as mapr)
+su - mapr
+hadoop fs -chown -R dbadmin:verticadba /vertica
+
+# As the root user, try to install again
+/opt/vertica/sbin/install_vertica --hosts maprdemo --rpm /home/mapr/vertica-8.1.0-3.x86_64.RHEL6.rpm --data-dir /vertica/data
+
+
+# Create symlinks
+clush -g vertica 'mv /opt/vertica /opt/vertica8'
+clush -g vertica 'ln -s /opt/vertica8 /opt/vertica'
+clush -g vertica 'ln -s /vertica8 /vertica'
+
+# Accept the EULA and enter a license
+su - dbadmin
+/opt/vertica/bin/admintools
+
+######################
+# Creating Databases #
+######################
+# All tests performed while running Vertica On MapR were successful.
+# However, there were certain instances where the '--skip-fs-checks' command line parameter
+# was required to bypass Vertica's check for the presence of ext3/ext4 filesystem for Vertica
+# Storage locations. We have found that to be the case when a DB is initially created,
+# as well as when adding additional nodes to the Vertica cluster.
+
+# Create Database (Example)
+su - dbadmin
+
+/opt/vertica/bin/admintools -t create_db -s maprdemo -d vmart -c /vertica/catalog -D /vertica/data --skip-fs-checks
+
