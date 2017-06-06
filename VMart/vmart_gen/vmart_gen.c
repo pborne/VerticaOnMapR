@@ -297,7 +297,6 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    datadirstatus = -1;
     datadirstatus = access(datadirectory, W_OK);
     if (datadirstatus != 0)
     {
@@ -517,7 +516,7 @@ int main(int argc, char *argv[])
         uint64 oyear = flip(startYear, endYear);
         uint64 sday = oday + flip(0, 5);
         uint64 dday = sday + flip(3, 10);
-        fprintf(fd, "|%lld-%lld-%lld|%lld-%lld-%lld|%lld-%lld-%lld|%lld-%lld-%lld", omonth, oday, oyear, // date ordered
+        fprintf(fd, "|%lld/%lld/%lld|%lld/%lld/%lld|%lld/%lld/%lld|%lld/%lld/%lld", omonth, oday, oyear, // date ordered
                 omonth, sday, oyear,     // date shipped
                 omonth, dday, oyear,     // date delivered
                 omonth, oday + 7, oyear  // expected delivery date
@@ -886,12 +885,12 @@ void store_gen(const char *file, uint64 numstores)
         uint64 myear = flip(startYear, endYear);
         uint64 mday = 1;
 
-        fprintf(fd, "|%lld-%lld-%lld", mmonth, mday, myear);
+        fprintf(fd, "|%lld/%lld/%lld", mmonth, mday, myear);
 
         uint64 remodel = flip(1, 4);
 
         if (myear + remodel <= 2007)
-            fprintf(fd, "|%lld-%lld-%lld", mmonth + remodel, mday, myear + remodel);
+            fprintf(fd, "|%lld/%lld/%lld", mmonth + remodel, mday, myear + remodel);
         else
             fprintf(fd, "|%s", nullflag);
 
@@ -1132,8 +1131,8 @@ void promo_gen(const char *file, uint64 numpromos)
         uint64 day = flip(1, 14);
         uint64 year = flip(startYear, endYear);
 
-        fprintf(fd, "|%lld-%lld-%lld", month, day, year);
-        fprintf(fd, "|%lld-%lld-%lld", month, day + flip(1, 14), year);
+        fprintf(fd, "|%lld/%lld/%lld", month, day, year);
+        fprintf(fd, "|%lld/%lld/%lld", month, day + flip(1, 14), year);
         fprintf(fd, "\n");
     }
     fclose(fd);
@@ -1157,7 +1156,7 @@ void vend_gen(const char *file, uint64 numvends)
     for (uint64 i = 1; i <= numvends; i++)
     {
         uint64 loc = flip(0, NUM_LOC - 1);
-        fprintf(fd, "%lld|%s %s|%lld %s|%s|%s|%s|%lld|%lld-%lld-%lld\n", i,                                 //vendor key
+        fprintf(fd, "%lld|%s %s|%lld %s|%s|%s|%s|%lld|%lld/%lld/%lld\n", i,                                 //vendor key
                 vendor[flip(0, 8)], vendor2[flip(0, 9)],      //vendor name
                 flip(1, 500), streets[flip(0, 19)],           //street address
                 locations[loc].city, locations[loc].state, locations[loc].region, flip(500, 1000000),        //deal size
@@ -1221,7 +1220,7 @@ void cust_gen(const char *file, uint64 numcusts)
                     flip(0, 1)        // store membership card
                          );
             // customer since
-            fprintf(fd, "|%lld-%lld-%lld", flip(1, 12), flip(1, 28), flip(1965, 2007));
+            fprintf(fd, "|%lld/%lld/%lld", flip(1, 12), flip(1, 28), flip(1965, 2016));
             fprintf(fd, "|%s|%s|%s", nullflag, nullflag, nullflag);
         } else    // customer is a company
         {
@@ -1246,7 +1245,7 @@ void cust_gen(const char *file, uint64 numcusts)
             fprintf(fd, "|%lld|%lld", flip(1000, 500000), // maximum bill amount
                     flip(0, 1)                  // store membership card
                          );
-            fprintf(fd, "|%lld-%lld-%lld|%s|%lld|%lld-%lld-%lld", flip(1, 12), flip(1, 28),   // customer since
+            fprintf(fd, "|%lld/%lld/%lld|%s|%lld|%lld/%lld/%lld", flip(1, 12), flip(1, 28),   // customer since
                     flip(2007 - age, 2007), stage[flip(0, 5)],     // deal stage
                     flip(10000, 5000000),       // deal size
                     flip(1, 12),                // last deal update
@@ -1287,7 +1286,7 @@ void emp_gen(const char *file, uint64 numemps)
 
         uint64 loc = flip(0, NUM_LOC - 1);
         uint64 age = flip(14, 65);
-        fprintf(fd, "|%s|%s|%lld|%lld-%lld-%lld|%lld %s|%s|%s|%s", midinit[flip(0, 26)], surname[flip(0, 49)], age,
+        fprintf(fd, "|%s|%s|%lld|%lld/%lld/%lld|%lld %s|%s|%s|%s", midinit[flip(0, 26)], surname[flip(0, 49)], age,
                 flip(1, 12), flip(1, 28), flip(2007 - age + 14, 2007), // hire date
                 flip(1, 500), streets[flip(0, 19)], locations[loc].city, locations[loc].state, locations[loc].region);
         if (i <= numemps / 100)            // make a chain of command
@@ -1534,8 +1533,8 @@ void onlinepage_gen(const char *file, uint64 numonlinepages)
         uint64 day = flip(1, 14);
         uint64 year = flip(startYear, endYear);
 
-        fprintf(fd, "|%lld-%lld-%lld", month, day, year);
-        fprintf(fd, "|%lld-%lld-%lld", month, day + flip(1, 14), year);
+        fprintf(fd, "|%lld/%lld/%lld", month, day, year);
+        fprintf(fd, "|%lld/%lld/%lld", month, day + flip(1, 14), year);
 
         fprintf(fd, "|%lld|%s|%s\n", flip(1, 40), op_description[flip(0, 7)], op_type[flip(0, 2)]);
 
@@ -1579,8 +1578,8 @@ void callcenter_gen(const char *file, uint64 numcallcenters)
         day = flip(1, 14);
         year = flip(startYear, endYear);
 
-        fprintf(fd, "|%lld-%lld-%lld", month, day + flip(1, 14), year);
-        fprintf(fd, "|%lld-%lld-%lld", month, day, year);
+        fprintf(fd, "|%lld/%lld/%lld", month, day + flip(1, 14), year);
+        fprintf(fd, "|%lld/%lld/%lld", month, day, year);
 
         fprintf(fd, "|%s|%s|%lld|%s|%s|%lld %s|%s|%s|%s\n", cc_name[flip(0, 11)], cc_class[flip(0, 2)], flip(1, 30),
                 cc_hours[flip(0, 2)], cc_manager[flip(0, 3)], flip(1, 500), streets[flip(0, 19)], locations[loc].city,
