@@ -1615,7 +1615,7 @@ void tableprint(FILE *fd, const char *inputfile, const char *table)
     char buf[1024];
     sprintf(buf, "\\set input_file '\\'':t_pwd'/");
     sprintf(&buf[strlen(buf)], "%s.csv\\''\n", inputfile);
-    sprintf(&buf[strlen(buf)], "COPY %s FROM :input_file DELIMITER '|' ", table);
+    sprintf(&buf[strlen(buf)], "COPY %s FROM :input_file GZIP DELIMITER '|' ", table);
 
     // if nullflag contains a '\', we need to add extra dashes
     // to get the correct value into the load script
