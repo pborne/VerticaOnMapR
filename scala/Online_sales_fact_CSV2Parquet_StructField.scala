@@ -1,6 +1,6 @@
 package vmart.parquet
 
-// Generated on: 2017:06:07-17:11:03,560
+// Generated on: 2017:06:06-15:57:41,747
 
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types.{MetadataBuilder, _}
@@ -47,7 +47,7 @@ object Online_sales_fact_CSV2Parquet_StructField {
       .schema(Online_sales_fact)
       .load("/tmp/ros/online_sales_fact.csv.gz")
 
-    df.write.mode("overwrite").parquet("/tmp/online_sales_fact.parquet")
+    df.write.mode("overwrite").parquet("/tmp/vertica/data/parquet/online_sales_fact.parquet")
 
   }
 }

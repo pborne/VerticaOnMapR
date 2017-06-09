@@ -1,6 +1,6 @@
 package vmart.parquet
 
-// Generated on: 2017:06:07-17:11:03,167
+// Generated on: 2017:06:06-15:57:41,458
 
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types.{MetadataBuilder, _}
@@ -35,7 +35,7 @@ object Online_page_dimension_CSV2Parquet_StructField {
       .schema(Online_page_dimension)
       .load("/tmp/ros/online_page_dimension.csv.gz")
 
-    df.write.mode("overwrite").parquet("/tmp/online_page_dimension.parquet")
+    df.write.mode("overwrite").parquet("/tmp/vertica/data/parquet/online_page_dimension.parquet")
 
   }
 }

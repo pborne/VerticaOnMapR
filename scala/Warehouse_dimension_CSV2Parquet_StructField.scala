@@ -1,6 +1,6 @@
 package vmart.parquet
 
-// Generated on: 2017:06:07-17:11:04,337
+// Generated on: 2017:06:06-15:57:42,262
 
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types.{MetadataBuilder, _}
@@ -35,7 +35,7 @@ object Warehouse_dimension_CSV2Parquet_StructField {
       .schema(Warehouse_dimension)
       .load("/tmp/ros/warehouse_dimension.csv.gz")
 
-    df.write.mode("overwrite").parquet("/tmp/warehouse_dimension.parquet")
+    df.write.mode("overwrite").parquet("/tmp/vertica/data/parquet/warehouse_dimension.parquet")
 
   }
 }
