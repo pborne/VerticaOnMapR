@@ -175,7 +175,7 @@ create table ros.store_dimension
 );
 
 create table ros.store_sales_fact
-(    date_key                   integer         not null,
+(   date_key                   integer         not null,
     product_key                integer         not null,
     product_version            integer         not null,
     store_key                  integer         not null,
@@ -283,7 +283,7 @@ create table ros.Online_Sales_Fact
     transaction_type           varchar(16)
 );
 
-alter table ros.fact
+alter table ros.Online_Sales_Fact
     add constraint fk_saledate foreign key (sale_date_key) 
         references ros.date_dimension (date_key),
         add constraint fk_shipdate foreign key (ship_date_key) 

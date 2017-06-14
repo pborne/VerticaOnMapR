@@ -29,18 +29,29 @@ clush -ac /etc/profile.d/timezone.sh
 # Download the RPM from my.vertica.com
 
 # Upload the RPM to the VM
-scp vertica-8.1.0-3.x86_64.RHEL6.rpm mapr@192.168.56.101:~/
+# scp vertica-8.1.0-3.x86_64.RHEL6.rpm mapr@192.168.56.101:~/
+scp ~/Downloads/vertica-8.1.0-3.x86_64.RHEL6.rpm mapr@172.16.194.128:~/
+
+
 
 # Install on the first Vertica node
 # Run as root:
-yum install /home/mapr/vertica-8.1.0-3.x86_64.RHEL6.rpm
+#yum install /home/mapr/vertica-8.1.0-3.x86_64.RHEL6.rpm
+yum install ~mapr/vertica-8.1.0-4.x86_64.RHEL6.rpm
 
 # Create a symbolic link to the volumes
 rm -f /vertica
 ln -s /mapr/demo.mapr.com/vertica/`hostname -s` /vertica
 
+# Modify the script
+vim /opt/vertica/share/eggs/vertica/system/aws_metadata.py
+line 152:
+return False
+
+
+
 # As the root user:
-/opt/vertica/sbin/install_vertica --hosts maprdemo --rpm /home/mapr/vertica-8.1.0-3.x86_64.RHEL6.rpm --data-dir /vertica/data
+/opt/vertica/sbin/install_vertica --hosts maprdemo --rpm ~mapr/vertica-8.1.0-4.x86_64.RHEL6.rpm --data-dir /vertica/data
 
 # If necessary, fix the OS parameters that are incorrect as reported by the installer
 
@@ -49,6 +60,8 @@ ln -s /mapr/demo.mapr.com/vertica/`hostname -s` /vertica
 ##############################################################################
 cat /sys/block/sda/queue/scheduler
 echo noop > /sys/block/sda/queue/scheduler
+echo "echo noop > /sys/block/sda/queue/scheduler" >> /etc/rc.local
+
 cat /sys/block/sda/queue/scheduler
 
 ###############################################################
@@ -120,6 +133,7 @@ hadoop fs -chown -R dbadmin:verticadba /vertica
 
 # As the root user, try to install again
 /opt/vertica/sbin/install_vertica --hosts maprdemo --rpm /home/mapr/vertica-8.1.0-3.x86_64.RHEL6.rpm --data-dir /vertica/data
+/opt/vertica/sbin/install_vertica --hosts localhost --rpm /home/mapr/vertica-8.1.0-3.x86_64.RHEL6.rpm --data-dir /vertica/data
 
 
 # Create symlinks
@@ -145,3 +159,7 @@ su - dbadmin
 
 /opt/vertica/bin/admintools -t create_db -s maprdemo -d vmart -c /vertica/catalog -D /vertica/data --skip-fs-checks
 
+# Set up Parquet volume
+maprcli volume create -name parquet -path /parquet -createparent true
+hadoop fs -chown -R dbadmin:verticadba /parquet
+chown -R dbadmin:verticadba /mapr/demo.mapr.com/parquet
